@@ -56,4 +56,3 @@ def delete_participant(participant_id: int, db: Session = Depends(get_db)):
     """Elimina un participante."""
     service = ParticipantService(db)
     service.delete_participant(participant_id)
-

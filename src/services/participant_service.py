@@ -81,4 +81,3 @@ class ParticipantService:
         cache.delete(f"participant:{participant_id}")
         cache.delete_pattern("participants:list:*")
         return True
-

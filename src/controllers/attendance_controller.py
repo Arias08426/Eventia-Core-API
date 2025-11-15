@@ -45,4 +45,3 @@ def get_participant_attendances(participant_id: int, db: Session = Depends(get_d
     """Obtiene todos los eventos en los que está registrado un participante."""
     service = AttendanceService(db)
     return service.get_participant_attendances(participant_id)
-

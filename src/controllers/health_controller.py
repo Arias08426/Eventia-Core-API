@@ -51,4 +51,3 @@ def detailed_health_check(db: Session = Depends(get_db)):
         health_status["status"] = "degraded"
 
     return health_status
-

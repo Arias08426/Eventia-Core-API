@@ -80,4 +80,3 @@ class EventService:
             available_capacity=available,
             occupation_percentage=round(occupation, 2),
         )
-
