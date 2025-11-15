@@ -26,12 +26,20 @@ from src.models.attendance import Attendance  # noqa: E402
 from src.models.event import Event  # noqa: E402
 from src.models.participant import Participant  # noqa: E402
 
-# Base de datos de pruebas (SQLite para tests)
-SQLALCHEMY_TEST_DATABASE_URL = "sqlite:///./test.db"
-
-engine = create_engine(
-    SQLALCHEMY_TEST_DATABASE_URL, connect_args={"check_same_thread": False}
+# Usar DATABASE_URL del environment, si no está disponible usar SQLite
+DATABASE_URL = os.getenv(
+    "DATABASE_URL", "sqlite:///./test.db"
 )
+
+# Para SQLite en desarrollo local
+if "sqlite" in DATABASE_URL:
+    engine = create_engine(
+        DATABASE_URL, connect_args={"check_same_thread": False}
+    )
+else:
+    # Para MySQL en CI/CD
+    engine = create_engine(DATABASE_URL, pool_pre_ping=True)
+
 TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 
