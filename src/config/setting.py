@@ -37,12 +37,12 @@ class Settings(BaseSettings):
     # ============================================
     # CONFIGURACIÓN DE BASE DE DATOS
     # ============================================
-    DATABASE_URL: str
+    DATABASE_URL: str = "mysql+pymysql://eventia:eventia@localhost:3306/eventia_test"
     """
-    URL de conexión a PostgreSQL.
+    URL de conexión a MySQL.
 
-    Formato: postgresql://usuario:contraseña@host:puerto/nombre_db
-    Ejemplo: postgresql://eventia_user:eventia_pass@localhost:5432/eventia_db
+    Formato: mysql+pymysql://usuario:contraseña@host:puerto/nombre_db
+    Ejemplo: mysql+pymysql://eventia_user:eventia_pass@localhost:3306/eventia_db
     """
 
     DB_ECHO: bool = False
