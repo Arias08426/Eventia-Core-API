@@ -27,6 +27,8 @@ jobs:
         cache: 'pip'
     - name: Install dependencies
       run: pip install -r requirements-dev.txt
+    - name: Format with Black
+      run: black src/ tests/
     - name: Check Black formatting
       run: black --check src/ tests/ || true
     - name: Check import ordering
@@ -67,10 +69,10 @@ jobs:
         ports:
           - 3306:3306
         options: >-
-          --health-cmd="mysqladmin ping"
+          --health-cmd="mysqladmin ping -h localhost"
           --health-interval 10s
           --health-timeout 5s
-          --health-retries 5
+          --health-retries 10
       
       redis:
         image: redis:7-alpine
@@ -98,10 +100,15 @@ jobs:
         EOF
     - name: Install dependencies
       run: pip install -r requirements.txt -r requirements-dev.txt
-    - name: Wait for MySQL
+    - name: Wait for MySQL to be ready
       run: |
-        for i in {1..30}; do
-          mysqladmin ping -h127.0.0.1 -ueventia -peventia 2>/dev/null && break || sleep 1
+        for i in {1..60}; do
+          echo "Attempt $i/60: Checking MySQL..."
+          if mysql -h127.0.0.1 -ueventia -peventia -e "SELECT 1;" > /dev/null 2>&1; then
+            echo "MySQL is ready!"
+            break
+          fi
+          sleep 2
         done
     - name: Initialize database
       run: python -c "from src.database.connection import init_db; init_db()"
