@@ -43,9 +43,13 @@ class ParticipantService:
             )
         return participant
 
+    def get_participant_by_email(self, email: str):
+        """Obtiene un participante por su email"""
+        return self.db.query(Participant).filter(Participant.email == email).first()
+
     def get_all_participants(
         self, skip: int = 0, limit: int = 100
-    ) -> List[Participant]:
+    ) -> list[Participant]:
         """Obtiene todos los participantes con paginación"""
         return self.db.query(Participant).offset(skip).limit(limit).all()
 
