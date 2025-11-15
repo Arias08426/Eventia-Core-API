@@ -13,22 +13,7 @@ router = APIRouter(prefix="/health", tags=["Health"])
 
 @router.get("/", status_code=status.HTTP_200_OK)
 def health_check():
-    """
-    Endpoint de health check básico.
-
-    Verifica que la API está funcionando.
-
-    **Retorna:**
-    - Estado del servicio
-    - Nombre de la aplicación
-    - Versión
-    - Entorno
-
-    **Uso:**
-    - Útil para balanceadores de carga
-    - Monitoreo básico
-    - CI/CD pipelines
-    """
+    """Verifica que la API está funcionando."""
     return {
         "status": "healthy",
         "service": settings.APP_NAME,
@@ -39,27 +24,7 @@ def health_check():
 
 @router.get("/detailed", status_code=status.HTTP_200_OK)
 def detailed_health_check(db: Session = Depends(get_db)):
-    """
-    Health check detallado con verificación de dependencias.
-
-    Verifica:
-    - Estado de la API
-    - Conexión a PostgreSQL
-    - Conexión a Redis
-
-    **Retorna:**
-    - Estado general del servicio
-    - Estado individual de cada componente
-
-    **Estados posibles:**
-    - **healthy**: Todo funciona correctamente
-    - **degraded**: API funcional pero algún servicio secundario tiene problemas (ej: Redis)
-    - **unhealthy**: Servicios críticos no funcionan (ej: Base de datos)
-
-    **Uso:**
-    - Monitoreo detallado
-    - Debugging de problemas de infraestructura
-    """
+    """Verifica estado de API, base de datos y Redis."""
     health_status = {
         "status": "healthy",
         "service": settings.APP_NAME,
@@ -68,7 +33,6 @@ def detailed_health_check(db: Session = Depends(get_db)):
         "checks": {},
     }
 
-    # Verificar base de datos
     try:
         db.execute("SELECT 1")
         health_status["checks"]["database"] = "healthy"
@@ -76,7 +40,6 @@ def detailed_health_check(db: Session = Depends(get_db)):
         health_status["checks"]["database"] = f"unhealthy: {str(e)}"
         health_status["status"] = "unhealthy"
 
-    # Verificar Redis
     try:
         if cache.ping():
             health_status["checks"]["redis"] = "healthy"
@@ -88,3 +51,4 @@ def detailed_health_check(db: Session = Depends(get_db)):
         health_status["status"] = "degraded"
 
     return health_status
+
