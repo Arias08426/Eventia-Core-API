@@ -1,36 +1,36 @@
 """
 Configuración compartida para todas las pruebas
 """
-import sys
 import os
+import sys
 
 # Agregar el directorio raíz al path
 ROOT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-SRC_DIR = os.path.join(ROOT_DIR, 'src')
+SRC_DIR = os.path.join(ROOT_DIR, "src")
 
 # Agregar src al path ANTES de cualquier import
 if SRC_DIR not in sys.path:
     sys.path.insert(0, SRC_DIR)
 
-import pytest
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
-from fastapi.testclient import TestClient
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta  # noqa: E402
+
+import pytest  # noqa: E402
+from fastapi.testclient import TestClient  # noqa: E402
+from sqlalchemy import create_engine  # noqa: E402
+from sqlalchemy.orm import sessionmaker  # noqa: E402
 
 # AHORA sí importar (después de agregar al path)
-from src.database.connection import Base, get_db
-from src.main import app
-from src.models.event import Event
-from src.models.participant import Participant
-from src.models.attendance import Attendance
+from src.database.connection import Base, get_db  # noqa: E402
+from src.main import app  # noqa: E402
+from src.models.attendance import Attendance  # noqa: E402
+from src.models.event import Event  # noqa: E402
+from src.models.participant import Participant  # noqa: E402
 
 # Base de datos de pruebas (SQLite para tests)
 SQLALCHEMY_TEST_DATABASE_URL = "sqlite:///./test.db"
 
 engine = create_engine(
-    SQLALCHEMY_TEST_DATABASE_URL,
-    connect_args={"check_same_thread": False}
+    SQLALCHEMY_TEST_DATABASE_URL, connect_args={"check_same_thread": False}
 )
 TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
@@ -50,12 +50,13 @@ def db():
 @pytest.fixture(scope="function")
 def client(db):
     """Cliente de pruebas de FastAPI"""
+
     def override_get_db():
         try:
             yield db
         finally:
             pass
-    
+
     app.dependency_overrides[get_db] = override_get_db
     with TestClient(app) as test_client:
         yield test_client
@@ -70,7 +71,7 @@ def sample_event_data():
         "description": "Una conferencia sobre tecnología",
         "location": "Centro de Convenciones",
         "date": (datetime.utcnow() + timedelta(days=30)).isoformat(),
-        "capacity": 100
+        "capacity": 100,
     }
 
 
@@ -80,7 +81,7 @@ def sample_participant_data():
     return {
         "name": "Juan Pérez",
         "email": "juan.perez@example.com",
-        "phone": "+573001234567"
+        "phone": "+573001234567",
     }
 
 
@@ -92,7 +93,7 @@ def create_event(db, sample_event_data):
         description=sample_event_data["description"],
         location=sample_event_data["location"],
         date=datetime.fromisoformat(sample_event_data["date"]),
-        capacity=sample_event_data["capacity"]
+        capacity=sample_event_data["capacity"],
     )
     db.add(event)
     db.commit()
@@ -106,7 +107,7 @@ def create_participant(db, sample_participant_data):
     participant = Participant(
         name=sample_participant_data["name"],
         email=sample_participant_data["email"],
-        phone=sample_participant_data["phone"]
+        phone=sample_participant_data["phone"],
     )
     db.add(participant)
     db.commit()
@@ -118,8 +119,7 @@ def create_participant(db, sample_participant_data):
 def create_attendance(db, create_event, create_participant):
     """Crea una asistencia en la BD"""
     attendance = Attendance(
-        event_id=create_event.id,
-        participant_id=create_participant.id
+        event_id=create_event.id, participant_id=create_participant.id
     )
     db.add(attendance)
     db.commit()
@@ -136,8 +136,8 @@ def create_multiple_events(db):
             name=f"Evento {i+1}",
             description=f"Descripción del evento {i+1}",
             location=f"Ubicación {i+1}",
-            date=datetime.utcnow() + timedelta(days=i+1),
-            capacity=50 + (i * 10)
+            date=datetime.utcnow() + timedelta(days=i + 1),
+            capacity=50 + (i * 10),
         )
         db.add(event)
         events.append(event)
@@ -155,7 +155,7 @@ def create_multiple_participants(db):
         participant = Participant(
             name=f"Participante {i+1}",
             email=f"participante{i+1}@example.com",
-            phone=f"+5730012345{i}"
+            phone=f"+5730012345{i}",
         )
         db.add(participant)
         participants.append(participant)

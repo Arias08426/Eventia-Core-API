@@ -1,22 +1,9 @@
 """
 Schemas Pydantic para validación de entrada/salida
 """
-from .event import (
-    EventCreate, 
-    EventUpdate, 
-    EventResponse, 
-    EventStatistics
-)
-from .participant import (
-    ParticipantCreate, 
-    ParticipantUpdate, 
-    ParticipantResponse
-)
-from .attendance import (
-    AttendanceCreate, 
-    AttendanceResponse, 
-    AttendanceDetail
-)
+from .attendance import AttendanceCreate, AttendanceDetail, AttendanceResponse
+from .event import EventCreate, EventResponse, EventStatistics, EventUpdate
+from .participant import ParticipantCreate, ParticipantResponse, ParticipantUpdate
 
 __all__ = [
     "EventCreate",
@@ -28,5 +15,5 @@ __all__ = [
     "ParticipantResponse",
     "AttendanceCreate",
     "AttendanceResponse",
-    "AttendanceDetail"
+    "AttendanceDetail",
 ]

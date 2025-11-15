@@ -2,12 +2,12 @@
 Excepciones personalizadas de la aplicación
 """
 from .custom_exceptions import (
-    EventiaException,
-    NotFoundException,
     AlreadyExistsException,
     CapacityExceededException,
     DuplicateRegistrationException,
-    ValidationException
+    EventiaException,
+    NotFoundException,
+    ValidationException,
 )
 
 __all__ = [
@@ -16,5 +16,5 @@ __all__ = [
     "AlreadyExistsException",
     "CapacityExceededException",
     "DuplicateRegistrationException",
-    "ValidationException"
+    "ValidationException",
 ]

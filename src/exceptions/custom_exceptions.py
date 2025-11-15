@@ -9,21 +9,21 @@ y proporcionar mensajes de error claros a los clientes de la API.
 class EventiaException(Exception):
     """
     Excepción base para todas las excepciones personalizadas de Eventia.
-    
+
     Todas las excepciones de negocio heredan de esta clase.
-    
+
     Attributes:
         message: Mensaje descriptivo del error
         status_code: Código HTTP asociado al error
-    
+
     Ejemplo:
         raise EventiaException("Error general", status_code=500)
     """
-    
+
     def __init__(self, message: str, status_code: int = 400):
         """
         Inicializa la excepción.
-        
+
         Args:
             message: Mensaje descriptivo del error
             status_code: Código HTTP (default: 400 Bad Request)
@@ -36,22 +36,22 @@ class EventiaException(Exception):
 class NotFoundException(EventiaException):
     """
     Excepción lanzada cuando un recurso no se encuentra en la base de datos.
-    
+
     Código HTTP: 404 Not Found
-    
+
     Casos de uso:
     - Buscar un evento que no existe
     - Buscar un participante que no existe
     - Buscar una asistencia que no existe
-    
+
     Ejemplo:
         raise NotFoundException("Evento con ID 123 no encontrado")
     """
-    
+
     def __init__(self, message: str = "Recurso no encontrado"):
         """
         Inicializa la excepción con mensaje personalizado.
-        
+
         Args:
             message: Mensaje descriptivo (default: "Recurso no encontrado")
         """
@@ -61,21 +61,21 @@ class NotFoundException(EventiaException):
 class AlreadyExistsException(EventiaException):
     """
     Excepción lanzada cuando se intenta crear un recurso que ya existe.
-    
+
     Código HTTP: 409 Conflict
-    
+
     Casos de uso:
     - Intentar crear un participante con email duplicado
     - Intentar crear cualquier recurso que viole restricciones de unicidad
-    
+
     Ejemplo:
         raise AlreadyExistsException("El email juan@example.com ya está registrado")
     """
-    
+
     def __init__(self, message: str = "El recurso ya existe"):
         """
         Inicializa la excepción con mensaje personalizado.
-        
+
         Args:
             message: Mensaje descriptivo (default: "El recurso ya existe")
         """
@@ -85,26 +85,26 @@ class AlreadyExistsException(EventiaException):
 class CapacityExceededException(EventiaException):
     """
     Excepción lanzada cuando se excede la capacidad de un evento.
-    
+
     Código HTTP: 400 Bad Request
-    
+
     Casos de uso:
     - Intentar registrar un participante a un evento lleno
-    
+
     Regla de negocio:
     - Un evento tiene capacidad máxima
     - No se pueden registrar más participantes una vez alcanzada la capacidad
-    
+
     Ejemplo:
         raise CapacityExceededException(
             "El evento 'Conferencia Tech' ha alcanzado su capacidad máxima (100 participantes)"
         )
     """
-    
+
     def __init__(self, message: str = "Capacidad del evento excedida"):
         """
         Inicializa la excepción con mensaje personalizado.
-        
+
         Args:
             message: Mensaje descriptivo (default: "Capacidad del evento excedida")
         """
@@ -114,28 +114,30 @@ class CapacityExceededException(EventiaException):
 class DuplicateRegistrationException(EventiaException):
     """
     Excepción lanzada cuando un participante intenta registrarse dos veces al mismo evento.
-    
+
     Código HTTP: 409 Conflict
-    
+
     Casos de uso:
     - Intentar registrar un participante que ya está registrado en el evento
-    
+
     Regla de negocio:
     - Un participante solo puede registrarse una vez por evento
     - Esta restricción está implementada en la BD con UniqueConstraint
-    
+
     Ejemplo:
         raise DuplicateRegistrationException(
             "El participante Juan Pérez ya está registrado en el evento Conferencia Tech"
         )
     """
-    
-    def __init__(self, message: str = "El participante ya está registrado en este evento"):
+
+    def __init__(
+        self, message: str = "El participante ya está registrado en este evento"
+    ):
         """
         Inicializa la excepción con mensaje personalizado.
-        
+
         Args:
-            message: Mensaje descriptivo 
+            message: Mensaje descriptivo
                     (default: "El participante ya está registrado en este evento")
         """
         super().__init__(message, status_code=409)
@@ -144,26 +146,26 @@ class DuplicateRegistrationException(EventiaException):
 class ValidationException(EventiaException):
     """
     Excepción lanzada cuando falla la validación de datos.
-    
+
     Código HTTP: 422 Unprocessable Entity
-    
+
     Casos de uso:
     - Datos de entrada inválidos que pasan la validación de Pydantic
     - Validaciones de negocio adicionales
     - Formato de datos incorrecto
-    
+
     Nota:
         Pydantic ya maneja la mayoría de validaciones básicas.
         Esta excepción es para validaciones de negocio más complejas.
-    
+
     Ejemplo:
         raise ValidationException("La fecha del evento debe ser al menos 24 horas en el futuro")
     """
-    
+
     def __init__(self, message: str = "Error de validación"):
         """
         Inicializa la excepción con mensaje personalizado.
-        
+
         Args:
             message: Mensaje descriptivo (default: "Error de validación")
         """
