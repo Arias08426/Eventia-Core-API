@@ -1,0 +1,131 @@
+version: '3.9'
+
+services:
+  # Backend - FastAPI
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: eventia_backend
+    ports:
+      - "8000:8000"
+    environment:
+      # Application
+      APP_NAME: Eventia Core API
+      APP_VERSION: 1.0.0
+      APP_ENV: production
+      DEBUG: False
+      
+      # Server
+      HOST: 0.0.0.0
+      PORT: 8000
+      
+      # Database - MySQL
+      DATABASE_URL: mysql+pymysql://eventia_user:eventia_password@mysql:3306/eventia_db
+      DB_HOST: mysql
+      DB_PORT: 3306
+      DB_NAME: eventia_db
+      DB_USER: eventia_user
+      DB_PASSWORD: eventia_password
+      DB_ECHO: False
+      
+      # Redis Cache
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      REDIS_DB: 0
+      REDIS_PASSWORD:
+      CACHE_TTL: 300
+      
+      # CORS
+      CORS_ORIGINS: '["http://localhost:3000","http://localhost:8000"]'
+      
+      # Logging
+      LOG_LEVEL: INFO
+    
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    
+    networks:
+      - eventia_network
+    
+    restart: unless-stopped
+    
+    volumes:
+      - .:/app
+
+
+  # MySQL Database
+  mysql:
+    image: mysql:8.0
+    container_name: eventia_mysql
+    
+    environment:
+      MYSQL_ROOT_PASSWORD: root_password
+      MYSQL_DATABASE: eventia_db
+      MYSQL_USER: eventia_user
+      MYSQL_PASSWORD: eventia_password
+      MYSQL_ROOT_HOST: '%'
+    
+    ports:
+      - "3306:3306"
+    
+    volumes:
+      # Persistencia de datos
+      - mysql_data:/var/lib/mysql
+      # Inicialización personalizada (opcional)
+      # - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    
+    networks:
+      - eventia_network
+    
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    
+    restart: unless-stopped
+
+
+  # Redis Cache
+  redis:
+    image: redis:7.2-alpine
+    container_name: eventia_redis
+    
+    ports:
+      - "6379:6379"
+    
+    command: >
+      redis-server 
+      --appendonly yes
+      --requirepass ""
+    
+    volumes:
+      # Persistencia de datos (AOF)
+      - redis_data:/data
+    
+    networks:
+      - eventia_network
+    
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    
+    restart: unless-stopped
+
+
+networks:
+  eventia_network:
+    driver: bridge
+
+
+volumes:
+  mysql_data:
+    driver: local
+  redis_data:
+    driver: local
