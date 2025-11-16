@@ -1,342 +1,270 @@
-# Eventia Core API 🎯
+# Eventia Core API
 
-Plataforma REST API para gestión de eventos y participantes construida con **FastAPI**, **SQLAlchemy** y **Redis**.
+Sistema de gestión de eventos RESTful con arquitectura MVC, pruebas automatizadas e integración continua.
 
-## 🏗️ Arquitectura MVC
+## Descripción
 
-```
-Eventia Core API (MVC)
-├── Models          → SQLAlchemy ORM (Event, Participant, Attendance)
-├── Controllers     → FastAPI endpoints (HTTP request handlers)
-└── Services        → Lógica de negocio (validaciones, reglas, caché)
-```
-
-### Capas del Proyecto
-
-| Capa | Responsabilidad | Carpeta |
-|------|-----------------|---------|
-| **Models** | Entidades de BD | `src/models/` |
-| **Controllers** | Rutas HTTP | `src/controllers/` |
-| **Services** | Lógica de negocio | `src/services/` |
-| **Schemas** | Validación Pydantic | `src/schemas/` |
-| **Database** | Conexión ORM | `src/database/` |
-| **Cache** | Redis | `src/cache/` |
-| **Config** | Configuración app | `src/config/` |
-| **Middleware** | Error handling | `src/middleware/` |
-
-## 📋 Requisitos Previos
-
-- Python 3.11+
-- MySQL 8.0+
-- Redis 7.0+
-- pip (Python package manager)
-
-## 🚀 Instalación
-
-### 1. Clonar repositorio
-```bash
-git clone https://github.com/Arias08426/Eventia-Core-API.git
-cd Eventia-Core-API
-```
-
-### 2. Crear entorno virtual
-```bash
-python -m venv .venv
-.venv\Scripts\activate  # Windows
-# source .venv/bin/activate  # Linux/Mac
-```
-
-### 3. Instalar dependencias
-```bash
-pip install -r requirements.txt
-```
-
-### 4. Configurar variables de entorno
-```bash
-cp .env.example .env
-```
-
-Editar `.env` con tus credenciales:
-```env
-DATABASE_URL=mysql+pymysql://user:password@localhost:3306/eventia
-REDIS_URL=redis://localhost:6379
-```
-
-### 5. Inicializar base de datos
-```bash
-python -c "from src.database.connection import init_db; init_db()"
-```
-
-## 🏃 Ejecución
-
-### Servidor local
-```bash
-python -m uvicorn src.main:app --reload
-```
-
-API disponible en: http://localhost:8000
-
-### Documentación interactiva
-- **Swagger UI**: http://localhost:8000/docs
-- **ReDoc**: http://localhost:8000/redoc
-
-## 📡 Endpoints Principales
-
-### Eventos
-| Método | Endpoint | Descripción |
-|--------|----------|-------------|
-| POST | `/events/` | Crear evento |
-| GET | `/events/` | Listar eventos |
-| GET | `/events/{id}` | Obtener evento |
-| PUT | `/events/{id}` | Actualizar evento |
-| DELETE | `/events/{id}` | Eliminar evento |
-| GET | `/events/{id}/statistics` | Estadísticas evento |
-
-### Participantes
-| Método | Endpoint | Descripción |
-|--------|----------|-------------|
-| POST | `/participants/` | Crear participante |
-| GET | `/participants/` | Listar participantes |
-| GET | `/participants/{id}` | Obtener participante |
-| PUT | `/participants/{id}` | Actualizar participante |
-| DELETE | `/participants/{id}` | Eliminar participante |
-
-### Asistencias
-| Método | Endpoint | Descripción |
-|--------|----------|-------------|
-| POST | `/attendances/` | Registrar asistencia |
-| DELETE | `/attendances/{id}` | Cancelar asistencia |
-| GET | `/attendances/event/{event_id}` | Participantes evento |
-| GET | `/attendances/participant/{participant_id}` | Eventos participante |
-
-### Salud
-| Método | Endpoint | Descripción |
-|--------|----------|-------------|
-| GET | `/health/` | Health check básico |
-| GET | `/health/detailed` | Health check detallado |
-
-## 🧪 Testing
-
-### Ejecutar todas las pruebas
-```bash
-python -m pytest tests/ -v
-```
-
-**Resultado**: ✅ 59 passed, 7 skipped (3 tipos de pruebas: unit, integration, system)
-
-### Pruebas unitarias
-```bash
-python -m pytest tests/unit/ -v
-# ✅ 27 tests passed
-```
-
-### Pruebas de integración
-```bash
-python -m pytest tests/integration/ -v
-# ✅ 7 tests passed
-```
-
-### Pruebas de sistema (E2E)
-```bash
-python -m pytest tests/system/ -v
-# ✅ 25 tests passed
-```
-
-### Con cobertura
-```bash
-python -m pytest tests/ --cov=src --cov-report=html
-```
-
-## 🔍 Análisis de Código
-
-### Validación de estilo (Flake8)
-```bash
-python -m flake8 src/ --max-line-length=100
-# ✅ 0 errors
-```
-
-### Formateo de código (Black)
-```bash
-python -m black src/
-```
-
-### Ordenar imports (isort)
-```bash
-python -m isort src/
-```
-
-### Análisis de seguridad (Bandit)
-```bash
-python -m bandit -r src/
-```
-
-### Escanear dependencias (Safety)
-```bash
-python -m safety check
-```
-
-### Type checking (MyPy)
-```bash
-python -m mypy src/
-```
-
-## 🐳 Docker Compose (Opcional)
-
-```bash
-docker-compose up -d
-```
-
-Esto inicia:
-- **MySQL 8.0** en puerto 3306
-- **Redis 7** en puerto 6379
-- **API** en puerto 8000
-
-## 📊 Estructura de Base de Datos
-
-### Eventos (events)
-```sql
-id          INT PRIMARY KEY AUTO_INCREMENT
-name        VARCHAR(200) NOT NULL
-description TEXT
-location    VARCHAR(300) NOT NULL
-date        DATETIME NOT NULL
-capacity    INT NOT NULL
-created_at  TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-updated_at  TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-```
-
-### Participantes (participants)
-```sql
-id         INT PRIMARY KEY AUTO_INCREMENT
-name       VARCHAR(200) NOT NULL
-email      VARCHAR(255) UNIQUE NOT NULL
-phone      VARCHAR(20)
-created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-```
-
-### Asistencias (attendance)
-```sql
-id             INT PRIMARY KEY AUTO_INCREMENT
-event_id       INT NOT NULL FK(events.id)
-participant_id INT NOT NULL FK(participants.id)
-registered_at  TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-UNIQUE KEY (event_id, participant_id)
-```
-
-## 🔐 Validaciones
-
-### Evento
-- Nombre: 3-200 caracteres
-- Ubicación: 3-300 caracteres
-- Fecha: Debe ser futura
-- Capacidad: Mayor que 0
-
-### Participante
-- Nombre: Requerido
-- Email: Único, válido
-- Teléfono: Opcional
-
-### Asistencia
-- Evento debe existir
-- Participante debe existir
-- No duplicados (1 asistencia/participante/evento)
-- Capacidad disponible en evento
-
-## 🔄 Pipeline CI/CD
-
-GitHub Actions ejecuta automáticamente al hacer push:
-
-1. **Code Quality** - Black, isort, Flake8 (✅ 0 errors)
-2. **Security** - Bandit, Safety
-3. **Unit Tests** - Pruebas unitarias (✅ 27 passed)
-4. **Integration Tests** - Pruebas con BD/Cache (✅ 7 passed)
-5. **System Tests** - Pruebas E2E (✅ 25 passed)
-
-Ver: `.github/workflows/ci-cd.yml`
-
-## 📝 Reglas de Negocio
-
-1. Un participante **no puede registrarse dos veces** al mismo evento
-2. Cada evento tiene **límite de capacidad** inmutable
-3. Los emails de participantes **deben ser únicos**
-4. Eliminar evento **elimina todas sus asistencias** (cascade)
-5. Eliminar participante **elimina todas sus asistencias** (cascade)
-
-## 🛠️ Troubleshooting
-
-### Conexión a MySQL rechazada
-- Verificar credenciales en `.env`
-- MySQL debe estar corriendo en puerto 3306
-- Base de datos `eventia` debe existir
-
-### Redis no disponible
-- Pruebas de integración se skipean automáticamente
-- App sigue funcionando sin caché
-- Verificar que Redis esté en puerto 6379
-
-### Pruebas fallan
-```bash
-rm -rf .pytest_cache
-python -m pytest tests/ -v -s
-```
-
-## 📚 Tecnologías
-
-| Componente | Versión | Propósito |
-|-----------|---------|-----------|
-| FastAPI | 0.109.0 | Framework web |
-| SQLAlchemy | 2.0.25 | ORM |
-| Pydantic | 2.5.0 | Validación |
-| PyMySQL | 1.1.0 | Driver MySQL |
-| Redis | 7.0 | Cache |
-| pytest | 7.4.4 | Testing |
-| Black | 23.12.1 | Formato |
-| Flake8 | 7.0.0 | Linting |
-| Bandit | 1.7.6 | Seguridad |
-
-## 🎓 Ejemplo de Uso
-
-```bash
-# 1. Crear un evento
-curl -X POST http://localhost:8000/events/ \
-  -H "Content-Type: application/json" \
-  -d '{
-    "name": "Conferencia Python",
-    "description": "Charlas sobre Python",
-    "location": "Madrid",
-    "date": "2024-12-15T14:00:00",
-    "capacity": 100
-  }'
-
-# 2. Crear participante
-curl -X POST http://localhost:8000/participants/ \
-  -H "Content-Type: application/json" \
-  -d '{
-    "name": "Juan Pérez",
-    "email": "juan@example.com",
-    "phone": "123456789"
-  }'
-
-# 3. Registrar participante a evento
-curl -X POST http://localhost:8000/attendances/ \
-  -H "Content-Type: application/json" \
-  -d '{
-    "event_id": 1,
-    "participant_id": 1
-  }'
-
-# 4. Obtener estadísticas del evento
-curl http://localhost:8000/events/1/statistics
-```
-
-## 📄 Licencia
-
-Este proyecto está bajo licencia MIT.
+API backend para administrar eventos, participantes y registros de asistencia. Construida con FastAPI, SQLAlchemy, MySQL y Redis con pipeline CI/CD en GitHub Actions.
 
 ---
 
-**Última actualización**: Enero 2024  
-**Estado**: ✅ Production Ready  
-**Pruebas**: ✅ 59/59 passed  
-**Código**: ✅ Flake8 0 errors
+## Arquitectura
+
+**Patrón:** MVC (Model-View-Controller)
+
+```
+src/
+  ├── models/                 # Modelos SQLAlchemy ORM
+  │   ├── event.py
+  │   ├── participant.py
+  │   └── attendance.py
+  ├── controllers/            # Controladores FastAPI
+  │   ├── event_controller.py
+  │   ├── participant_controller.py
+  │   ├── attendance_controller.py
+  │   └── health_controller.py
+  ├── services/               # Lógica de negocio
+  │   ├── event_service.py
+  │   ├── participant_service.py
+  │   └── attendance_service.py
+  ├── schemas/                # Validación Pydantic
+  │   ├── event.py
+  │   ├── participant.py
+  │   └── attendance.py
+  ├── database/               # Conexión y sesiones
+  │   └── connection.py
+  ├── cache/                  # Redis client
+  │   └── redis_client.py
+  ├── config/                 # Configuración
+  │   └── setting.py
+  ├── exceptions/             # Excepciones personalizadas
+  │   └── custom_exceptions.py
+  ├── middleware/             # Manejo global de errores
+  │   └── error_handler.py
+  └── main.py                 # Punto de entrada
+
+tests/
+  ├── unit/                   # Pruebas unitarias (27)
+  │   ├── test_event_service.py
+  │   ├── test_participant_service.py
+  │   └── test_attendance_service.py
+  ├── integration/            # Pruebas de integración (7)
+  │   ├── test_database.py
+  │   └── test_cache.py
+  └── system/                 # Pruebas E2E (25)
+      ├── test_events_api.py
+      ├── test_participants_api.py
+      └── test_attendance_api.py
+```
+
+---
+
+## Stack Tecnológico
+
+| Componente | Tecnología | Versión |
+|-----------|-----------|---------|
+| Lenguaje | Python | 3.11 |
+| Framework | FastAPI | 0.109.0 |
+| ORM | SQLAlchemy | 2.0.25 |
+| Base de Datos | MySQL | 8.0 |
+| Caché | Redis | 7-alpine |
+| Validación | Pydantic | 2.5.3 |
+| Testing | pytest | 7.4.4 |
+
+---
+
+## Requisitos Previos
+
+- Python 3.11+
+- MySQL 8.0 (local o Docker)
+- Redis 7+ (Docker recomendado)
+- Git
+
+---
+
+## Instalación
+
+### 1. Clonar repositorio
+
+```bash
+git clone https://github.com/Arias08426/Eventia-Core-API.git
+cd "Eventia Core API"
+```
+
+### 2. Crear entorno virtual
+
+```bash
+# Windows
+python -m venv .venv
+.\.venv\Scripts\Activate.ps1
+
+# Linux/Mac
+python3 -m venv .venv
+source .venv/bin/activate
+```
+
+### 3. Instalar dependencias
+
+```bash
+# Dependencias de producción
+pip install -r requirements.txt
+
+# Dependencias de desarrollo (testing, quality, security)
+pip install -r requirements-dev.txt
+```
+
+### 4. Configurar variables de entorno
+
+Crear archivo `.env` en la raíz del proyecto:
+
+```env
+APP_ENV=development
+DATABASE_URL=mysql+pymysql://eventia:eventia@localhost:3306/eventia
+REDIS_HOST=localhost
+REDIS_PORT=6379
+CACHE_TTL=3600
+CORS_ORIGINS=["http://localhost:3000","http://localhost:5173"]
+```
+
+---
+
+## Ejecución Local
+
+### Opción 1: Con Docker Compose (Recomendado)
+
+```bash
+# Levantar API + MySQL + Redis
+docker-compose up -d
+
+# Verificar servicios
+docker ps
+
+# API: http://localhost:8000
+```
+
+### Opción 2: Servicios Locales (Linux/Mac/Windows con XAMPP)
+
+```bash
+# Terminal 1: Inicializar base de datos
+python -c "from src.database.connection import init_db; init_db()"
+
+# Terminal 2: Ejecutar API
+python -m uvicorn src.main:app --reload --host 0.0.0.0 --port 8000
+```
+
+**Acceso:**
+- API: http://localhost:8000
+- Swagger UI: http://localhost:8000/docs
+- ReDoc: http://localhost:8000/redoc
+- Health: http://localhost:8000/health
+
+---
+
+## Pruebas Automatizadas
+
+### Ejecutar todas las pruebas
+
+```bash
+pytest -v
+```
+
+### Por categoría
+
+```bash
+pytest tests/unit/ -v           # Pruebas unitarias (27)
+pytest tests/integration/ -v    # Pruebas de integración (7)
+pytest tests/system/ -v         # Pruebas E2E (25)
+```
+
+### Con cobertura
+
+```bash
+pytest --cov=src --cov-report=html
+```
+
+**Resultado esperado:** 66 tests pasando
+
+---
+
+## Calidad de Código
+
+```bash
+# Formateo con Black
+black src/ tests/
+
+# Organizar imports con isort
+isort src/ tests/
+
+# Lint con Flake8
+flake8 src/ tests/ --max-line-length=100
+
+# Análisis de seguridad con Bandit
+bandit -r src/
+
+# Verificar dependencias con Safety
+safety check
+```
+
+---
+
+## Endpoints Principales
+
+### Eventos
+- `POST /events` - Crear evento
+- `GET /events` - Listar eventos
+- `GET /events/{id}` - Obtener evento
+- `PUT /events/{id}` - Actualizar evento
+- `DELETE /events/{id}` - Eliminar evento
+- `GET /events/{id}/statistics` - Estadísticas (caché)
+
+### Participantes
+- `POST /participants` - Registrar participante
+- `GET /participants` - Listar participantes
+- `GET /participants/{id}` - Obtener participante
+- `PUT /participants/{id}` - Actualizar participante
+- `DELETE /participants/{id}` - Eliminar participante
+
+### Asistencia
+- `POST /attendance` - Registrar asistencia
+- `DELETE /attendance/{id}` - Cancelar asistencia
+- `GET /attendance/event/{event_id}` - Asistencias por evento
+- `GET /attendance/participant/{participant_id}` - Asistencias por participante
+
+### Salud
+- `GET /health` - Health check del sistema
+
+---
+
+## Pipeline CI/CD
+
+**GitHub Actions** ejecuta automáticamente en cada push/pull request:
+
+1. **Code Quality** - Black, isort, Flake8
+2. **Security Analysis** - Bandit, Safety
+3. **Unit Tests** - pytest
+4. **Integration Tests** - pytest
+5. **System Tests** - pytest
+
+Ver `.github/workflows/ci-cd.yml` para detalles.
+
+---
+
+## Características
+
+✅ Arquitectura MVC limpia  
+✅ API RESTful con manejo centralizado de errores  
+✅ Base de datos MySQL con SQLAlchemy ORM  
+✅ Caché Redis para consultas frecuentes  
+✅ 66 pruebas automatizadas  
+✅ Análisis de seguridad y calidad  
+✅ CI/CD con GitHub Actions  
+✅ Docker & Docker Compose  
+
+---
+
+## Notas
+
+- En tests locales se usa SQLite automáticamente
+- MySQL es requerida en CI/CD
+- Redis es opcional (tests se saltan si no está disponible)
+- Middleware centralizado maneja todos los errores
